@@ -1,0 +1,57 @@
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      coins: [],
+      selectedCoin: null,
+    };
+  }
+
+  componentDidMount() {
+    fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false")
+      .then(response => response.json())
+      .then(data => this.setState({ coins: data }));
+  }
+
+  handleCoinClick = (coin) => {
+    this.setState({ selectedCoin: coin });
+  };
+
+  render() {
+    const { coins, selectedCoin } = this.state;
+
+    return (
+      <div>
+        <div className="coin-list">
+          {coins.map(coin => (
+            <div
+              key={coin.id}
+              className={`coin-card ${selectedCoin === coin ? 'active' : ''}`}
+              onClick={() => this.handleCoinClick(coin)}
+            >
+              <img src={coin.image} alt={coin.name} />
+              <h1>{coin.name}</h1>
+              <p>{coin.current_price}</p>
+            </div>
+          ))}
+        </div>
+        {selectedCoin && (
+          <div className="selected-coin">
+            <h2>{selectedCoin.name}</h2>
+            <p>{selectedCoin.description}</p>
+            <a
+              className="button"
+              href={selectedCoin.links.homepage[0]}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Visit Website
+            </a>
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
